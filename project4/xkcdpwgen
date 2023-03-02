@@ -2,42 +2,61 @@
 import argparse
 import random
 import string
-import sys, getopt
 
 
 def main():
     parser = argparse.ArgumentParser(description='Generate password using the XKCD method.')
-    parser.add_argument('-w', '--words', type=int, default=4, help='include WORDS words in the password (default=4)')
-    parser.add_argument('-c', '--caps', type=int, default=0, help='capitalize the first letter of CAPS random words (default=0)')
-    parser.add_argument('-n', '--numbers', type=int, default=0, help='insert NUMBERS random numbers in the password (default=0)')
-    parser.add_argument('-s', '--symbols', type=int, default=0, help='insert SYMBOLS random symbols in the password (default=0)')
+    parser.add_argument('-w', '--words', type=int, default=4, help='include WORDS in the password')
+    parser.add_argument('-c', '--caps', type=int, default=0, help='capitalize the first letter of CAPS of random words')
+    parser.add_argument('-n', '--numbers', type=int, default=0, help='insert NUMBERS random numbers in the password ')
+    parser.add_argument('-s', '--symbols', type=int, default=0, help='insert SYMBOLS random symbols in the password')
+
     args = parser.parse_args()
 
-    # Load the word list
-    words = []
-    with open('words.txt') as f:
-        for line in f:
-            words.append(line.strip())
+    with open("words.txt") as f:
+        words = [word.strip() 
+        for word in f.readlines()]
 
-    # Generate the password
-password = ''
-for i1 in range(words):
-    x = randint(0, len(lines) - 1)
-    temp = lines[x]
-    if caps >= (words - i1):
-        temp = temp[0].upper() + temp[1:]
-    elif caps > 0:
-        if randint(0, words) < caps:
-            temp = temp[0].upper() + temp[1:]
-            caps -= 1
-    password += temp
+    password = generate_password(words, args.words)
+    password = generate_caps(password, args.caps)
+    password = generate_symbols(password, args.symbols)
+    password = generate_numbers(password, args.numbers)
+    print(password)
 
-for i2 in range(numbers):
-    x = randint(0, len(password) - 1)
-    password = password[0:x] + str(randint(0, 9)) + password[x:]
 
-for i3 in range(symbols):
-    x = randint(0, len(password) - 1)
-    passsword = password[0:x] + special[randint(0, len(special) - 1)] + pwd[x:]
+def generate_password(words, length):
+    password = ""
+    for i in range(length):
+        password += random.choice(words).capitalize()
+    return password
 
-print(password)
+
+def generate_caps(password, num_caps):
+    if num_caps > 0:
+        for i in range(num_caps):
+            index = random.randint(0, len(password) - 1)
+            password = password[:index] + password[index].upper() + password[index+1:]
+    return password
+
+
+def generate_symbols(password, count):
+    symbols = "~!@#$%^&*"
+    if count > 0:
+        for i in range(count):
+            index = random.randint(0, len(password))
+            symbol = random.choice(symbols)
+            password = password[:index] + symbol + password[index:]
+    return password
+
+
+def generate_numbers(password, count):
+    if count > 0:
+        for i in range(count):
+            index = random.randint(0, len(password))
+            number = random.choice(string.digits)
+            password = password[:index] + number + password[index:]
+    return password
+
+
+if __name__ == "__main__":
+    main()
